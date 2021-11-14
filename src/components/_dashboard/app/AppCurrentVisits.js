@@ -1,5 +1,15 @@
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { merge } from 'lodash';
 import ReactApexChart from 'react-apexcharts';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import moment from 'moment';
 // material
 import { useTheme, styled } from '@mui/material/styles';
 import { Card, CardHeader } from '@mui/material';
@@ -7,6 +17,7 @@ import { Card, CardHeader } from '@mui/material';
 import { fNumber } from '../../../utils/formatNumber';
 //
 import { BaseOptionChart } from '../../charts';
+import { getAllBookingsToday } from '../../../services/admin/action';
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +45,18 @@ const ChartWrapperStyle = styled('div')(({ theme }) => ({
 const CHART_DATA = [4344, 5435, 1443, 4443];
 
 export default function AppCurrentVisits() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    getAllBookingsToday(
+      sessionStorage.getItem('token'),
+      moment(new Date()).format('YYYY-MM-DD'),
+      moment(new Date()).format('YYYY-MM-DD'),
+      dispatch
+    );
+  }, []);
+
+  const state = useSelector((state) => state.adminReducer.todayBooking);
   const theme = useTheme();
 
   const chartOptions = merge(BaseOptionChart(), {
@@ -63,9 +86,33 @@ export default function AppCurrentVisits() {
 
   return (
     <Card>
-      <CardHeader title="Current Visits" />
+      <CardHeader title="Today's Visits" />
       <ChartWrapperStyle dir="ltr">
-        <ReactApexChart type="pie" series={CHART_DATA} options={chartOptions} height={280} />
+        {/* <ReactApexChart type="pie" series={CHART_DATA} options={chartOptions} height={280} /> */}
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell align="right">Name</TableCell>
+                <TableCell align="right">Time Slots</TableCell>
+                <TableCell align="right">Phone Number</TableCell>
+                <TableCell align="right">Booking Status</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {state &&
+                state.length > 0 &&
+                state.map((row) => (
+                  <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                    <TableCell align="right">{row.name}</TableCell>
+                    <TableCell align="right">{row.timeSlot}</TableCell>
+                    <TableCell align="right">{row.phoneNumber}</TableCell>
+                    <TableCell align="right">{row.Status}</TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </ChartWrapperStyle>
     </Card>
   );

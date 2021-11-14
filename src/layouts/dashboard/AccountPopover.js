@@ -1,9 +1,10 @@
 import { Icon } from '@iconify/react';
+import { connect } from 'react-redux';
 import { useRef, useState } from 'react';
 import homeFill from '@iconify/icons-eva/home-fill';
 import personFill from '@iconify/icons-eva/person-fill';
 import settings2Fill from '@iconify/icons-eva/settings-2-fill';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 // material
 import { alpha } from '@mui/material/styles';
 import { Button, Box, Divider, MenuItem, Typography, Avatar, IconButton } from '@mui/material';
@@ -11,7 +12,7 @@ import { Button, Box, Divider, MenuItem, Typography, Avatar, IconButton } from '
 import MenuPopover from '../../components/MenuPopover';
 //
 import account from '../../_mocks_/account';
-
+import { AdminLoginNull } from '../../services/admin/action';
 // ----------------------------------------------------------------------
 
 const MENU_OPTIONS = [
@@ -34,15 +35,22 @@ const MENU_OPTIONS = [
 
 // ----------------------------------------------------------------------
 
-export default function AccountPopover() {
+function AccountPopover(props) {
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const Logout = () => {
+    props.AdminLoginNull();
+    sessionStorage.setItem('token', '');
+    window.location = '/';
   };
 
   return (
@@ -76,16 +84,16 @@ export default function AccountPopover() {
         anchorEl={anchorRef.current}
         sx={{ width: 220 }}
       >
-        <Box sx={{ my: 1.5, px: 2.5 }}>
+        {/* <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle1" noWrap>
             {account.displayName}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
             {account.email}
           </Typography>
-        </Box>
+        </Box> */}
 
-        <Divider sx={{ my: 1 }} />
+        {/* <Divider sx={{ my: 1 }} />
 
         {MENU_OPTIONS.map((option) => (
           <MenuItem
@@ -107,10 +115,10 @@ export default function AccountPopover() {
 
             {option.label}
           </MenuItem>
-        ))}
+        ))} */}
 
         <Box sx={{ p: 2, pt: 1.5 }}>
-          <Button fullWidth color="inherit" variant="outlined">
+          <Button fullWidth color="inherit" variant="outlined" onClick={() => Logout()}>
             Logout
           </Button>
         </Box>
@@ -118,3 +126,8 @@ export default function AccountPopover() {
     </>
   );
 }
+
+const mapDispatchToProps = (dispatch) => ({
+  AdminLoginNull: () => dispatch(AdminLoginNull())
+});
+export default connect(null, mapDispatchToProps)(AccountPopover);

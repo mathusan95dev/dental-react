@@ -1,4 +1,4 @@
-import { Navigate, useRoutes } from 'react-router-dom';
+import { Navigate, useRoutes, Routes, Route } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import LogoOnlyLayout from './layouts/LogoOnlyLayout';
@@ -9,34 +9,32 @@ import DashboardApp from './pages/DashboardApp';
 import Products from './pages/Products';
 import Blog from './pages/Blog';
 import User from './pages/User';
+import Setting from './pages/settings';
+
 import NotFound from './pages/Page404';
 
 // ----------------------------------------------------------------------
 
-export default function Router() {
+export default function Router(isLoggedIn) {
   return useRoutes([
     {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
-        { element: <Navigate to="/dashboard/app" replace /> },
         { path: 'app', element: <DashboardApp /> },
-        { path: 'user', element: <User /> },
+        { path: 'booking', element: <User /> },
+        { path: 'settings', element: <Setting /> },
         { path: 'products', element: <Products /> },
         { path: 'blog', element: <Blog /> }
       ]
-    },
-    {
-      path: '/',
-      element: <LogoOnlyLayout />,
-      children: [
-        { path: 'login', element: <Login /> },
-        { path: 'register', element: <Register /> },
-        { path: '404', element: <NotFound /> },
-        { path: '/', element: <Navigate to="/dashboard" /> },
-        { path: '*', element: <Navigate to="/404" /> }
-      ]
-    },
-    { path: '*', element: <Navigate to="/404" replace /> }
+    }
   ]);
+  // return (
+  //   <Routes>
+  //     <Route path="/dashboard/app" element={<DashboardApp />} />
+  //     <Route path="/dashboard/products" element={<Products />} />
+  //     <Route path="/dashboard/user" element={<User />} />
+  //     <Route path="/dashboard/blog" element={<Blog />} />
+  //   </Routes>
+  // );
 }

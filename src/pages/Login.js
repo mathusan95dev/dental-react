@@ -1,15 +1,19 @@
-import { Link as RouterLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link as RouterLink, useNavigate, useRoutes } from 'react-router-dom';
+import { withRouter } from 'react-router';
 // material
 import { styled } from '@mui/material/styles';
 import { Card, Stack, Link, Container, Typography } from '@mui/material';
 // layouts
+import { connect } from 'react-redux';
+
+import { AdminLogin, AdminLoginNull } from '../services/admin/action';
 import AuthLayout from '../layouts/AuthLayout';
 // components
 import Page from '../components/Page';
 import { MHidden } from '../components/@material-extend';
 import { LoginForm } from '../components/authentication/login';
 import AuthSocial from '../components/authentication/AuthSocial';
-
 // ----------------------------------------------------------------------
 
 const RootStyle = styled(Page)(({ theme }) => ({
@@ -39,7 +43,37 @@ const ContentStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function Login() {
+const Login = (props) => {
+  const navigate = useNavigate();
+  const [email, setemail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleChange = (e, data) => {
+    if (data === 'email') {
+      setemail(e.target.value);
+    } else {
+      setPassword(e.target.value);
+    }
+  };
+
+  const handlePress = (email, password) => {
+    props.AdminLogin({
+      email,
+      password
+    });
+  };
+
+  useEffect(() => {
+    props.AdminLoginNull();
+  }, []);
+
+  useEffect(() => {
+    if (props.adminLoginStatus) {
+      window.location = '/dashboard/app';
+      // navigate('/dashboard', { replace: true });
+    }
+  }, [props.adminLoginStatus]);
+
   return (
     <RootStyle title="Login | Minimal-UI">
       <AuthLayout>
@@ -62,13 +96,13 @@ export default function Login() {
         <ContentStyle>
           <Stack sx={{ mb: 5 }}>
             <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
+              Sign in
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
           </Stack>
-          <AuthSocial />
+          {/* <AuthSocial /> */}
 
-          <LoginForm />
+          <LoginForm presses={handlePress} />
 
           <MHidden width="smUp">
             <Typography variant="body2" align="center" sx={{ mt: 3 }}>
@@ -82,4 +116,19 @@ export default function Login() {
       </Container>
     </RootStyle>
   );
-}
+};
+
+const mapStateToProps = ({ adminReducer }) => {
+  const { adminLoginStatus } = adminReducer;
+
+  return {
+    adminLoginStatus
+  };
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  AdminLogin: (payload) => dispatch(AdminLogin(payload)),
+  AdminLoginNull: () => dispatch(AdminLoginNull())
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
